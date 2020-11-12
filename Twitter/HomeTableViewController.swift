@@ -21,11 +21,23 @@ class HomeTableViewController: UITableViewController {
         loadTweets()
         myRefreshControl.addTarget(self, action: #selector(loadTweets), for: .valueChanged)
         tableView.refreshControl = myRefreshControl
+        tableView.rowHeight = UITableView.automaticDimension
+        tableView.estimatedRowHeight = 130
+  
         // Uncomment the following line to preserve selection between presentations
         // self.clearsSelectionOnViewWillAppear = false
-
         // Uncomment the following line to display an Edit button in the navigation bar for this view controller.
         // self.navigationItem.rightBarButtonItem = self.editButtonItem
+    }
+    
+//    override func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+//        return 120
+//    }
+//
+    
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        self.loadTweets()
     }
     
     @objc func loadTweets() {
@@ -93,14 +105,18 @@ class HomeTableViewController: UITableViewController {
         let cell = tableView.dequeueReusableCell(withIdentifier: "tweetCell", for: indexPath) as! TweetCellTableViewCell
         
         let user = tweetArray[indexPath.row]["user"] as! NSDictionary
-        cell.nameLabel.text = user["name"] as! String
-        cell.contentLabel.text = tweetArray[indexPath.row]["text"] as! String
+        cell.nameLabel.text = user["name"] as? String
+        cell.contentLabel.text = tweetArray[indexPath.row]["text"] as? String
         
         let imageUrl = URL(string: (user["profile_image_url_https"] as? String)!)
         let data = try? Data(contentsOf: imageUrl!)
         if let imageData = data {
             cell.profileImage.image = UIImage(data: imageData)
         }
+        
+        cell.setFavorite(tweetArray[indexPath.row]["favorited"] as! Bool)
+        cell.tweetId = tweetArray[indexPath.row]["id"] as! Int
+        cell.setRetweeted(tweetArray[indexPath.row]["retweeted"] as! Bool)
         
         return cell
     }
